@@ -1,0 +1,34 @@
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+
+# IDE and editor configuration files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+
+# Directory for potential future model integration (as per plan's TODO)
+# This may contain large downloaded models or data that shouldn't be tracked.
+emotion_model/
