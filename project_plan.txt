@@ -1,70 +1,33 @@
-# EMOTION SIMULATOR: Human-Like Memory & Emotion Prototype
+EMOTION SIMULATOR - PROJECT PLAN
 
-## 1. Purpose & Immediate Value
-Instantly simulates believable emotional responses based on short-term memory and contextual events. Users describe scenarios ("You aced your exam", "Your laptop died") and immediately see:
-- Dynamic emotion heatmap (happiness, frustration, excitement etc.)
-- How recent memories influence current state
-- Real-time memory decay visualization
-Creates instant "what-if" exploration for writers, game designers, or psychology students - no setup needed.
+1. PURPOSE
+- Simulate real-time emotional responses based on short-term memory and context
+- Enable "what-if" exploration for writers, designers, educators
+- Immediate feedback with no configuration
 
-## 2. Key Technologies & Justifications
-- **Python + Typer**: Zero-config CLI with auto-help/docs. Verified: `python agent.py --help` shows usage instantly.
-- **In-memory emotion graph**: Uses NetworkX (lightweight for CPU) to model emotion relationships. Verified: `agent.py --debug` prints graph structure.
-- **No databases/APIs**: All state lives in Python objects. Memory is deque with O(1) ops.
+2. ARCHITECTURE
+- Single-file CLI: agent.py
+- State stored entirely in memory (no persistence)
+- Emotion Graph: Dict[str, Dict[str, float]] for emotion triggers
+- Memory: deque(maxlen=5) for O(1) memory management
+- Event Impact Rules: keyword → emotion mapping
 
-## 3. Minimum Viable Interactions
-1. `python agent.py --event "You found $20"` → 
-   - New memory added: "FOUND_MONEY (impact: +0.4)"
-   - Emotions shift: happiness ↑, surprise ↑
-2. `python agent.py --event "Your flight was canceled"` → 
-   - Frustration spikes (memory chain: "FOUND_MONEY" → "FLIGHT_CANCELED")
-Verification: Run both commands sequentially - see compound emotional effect.
+3. COMPONENTS
+- agent.py: Typer CLI entrypoint
+- Emotion Engine: update + propagation logic
+- Memory System: short-term buffer with decay
+- Heatmap Renderer: CLI-based visual output
 
-## 4. File Structure & Startup
-```
-/usr/src/project/
-├── agent.py          # Main logic (70 LOC)
-├── requirements.txt  # Typer only
-└── project_plan.txt  # This document
-```
-Startup code (agent.py) initializes baseline emotions and 5-item memory buffer. Verification: `python agent.py` runs without error.
+4. DATA FLOW
+Input Event → Keyword Extraction → Emotion Impact → Memory Store → Propagation → Output
 
-## 5. Core Logic Plan
-**File: agent.py**
-- `EmotionEngine` class
-  - `__init__()`: Sets baselines (curious: 0.3, calm: 0.7)
-  - `process_event(event: str) -> dict`: 
-      * Returns {emotion: value} (e.g., {"happiness": 0.6})
-      * Updates memory buffer
-  - `decay_memories()`: Fades old memories on new event
-Verification: Call `python -c "from agent import EmotionEngine; print(EmotionEngine().process_event('test'))"`
+5. EXTENSION POINTS
+- Add emotion intensity thresholds
+- Introduce random triggers
+- Support memory recall (future)
+- Export JSON state
 
-## 6. Build & Run Instructions
-```bash
-pip install -r requirements.txt && python agent.py --event "Hello world"
-```
-requirements.txt:
-```
-typer==0.12.5
-```
-Verification: Executing above prints emotion values in <2 sec.
-
-## 7. Stubbing & Shortcuts
-- **Keyword stub**: Map phrases to emotions via hardcoded dictionary (no real NLP):
-  ```python
-  EMOTION_MAP = {"found $20": ("happiness", 0.4), "flight canceled": ("frustration", 0.8)}
-  ```
-Verified: `agent.py --event "found $20"` always triggers happiness.
-- **Memory decay**: Linear fade (last entry weight=1.0, oldest=0.2) - replace with sigmoid later.
-- TODO comment: "# REAL INTEGRATION: Replace with transformer in ./emotion_model/"
-
-## 8. Completion Checklist
-- [ ] `agent.py` runs with --help showing options
-- [ ] `--event "good news"` prints updated emotion values
-- [ ] Two sequential events show memory compound effects
-- [ ] `decay_memories()` visibly reduces old memory weights
-
-### Philosophy
-- No models, no databases, no cloud: pure CPU-friendly algorithm
-- 100% interactive - user sees results in <1 sec per command
-- Total code: <100 lines. If it takes >30 mins to build, we over-engineered.
+6. JUSTIFICATIONS
+- No DB: Faster iteration, no setup
+- Typer: Auto-help, validation, clean CLI
+- Deque: O(1) append/popleft, bounded memory
